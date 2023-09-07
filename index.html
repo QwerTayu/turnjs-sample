@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<head>
+<link rel="stylesheet" href="css/mystyle.css" />
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"
+    integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+<script type="text/javascript" src="js/turn.js"></script>
+</head>
+<body>
+<div id="flipbook">
+    <div ignore="1" class="tabs">
+        <div class="left"></div>
+    </div>
+    <div class="hard own-size">page1</div>
+    <div class="hard own-size">page2</div>
+    <div>page3</div>
+    <div>page4</div>
+    <div class="hard own-size">page5</div>
+    <div class="hard own-size">page6</div>
+    <div ignore="1" class="tabs">
+        <div class="right"></div>
+    </div>
+</div>
+</body>
+<script type="text/javascript">
+    function updateTabs() { //タブ更新用
+        var tabs = {
+            2: "page2", //左にページ数右にタブに表示される文字を記載
+            3: "page3",
+            4: "page4",
+            5: "page5"
+        },
+            left = [],
+            right = [],
+            book = $(" #flipbook"),
+            actualPage = book.turn("page"),
+            view = book.turn("view");
+
+        for (var page in tabs) {
+            var isHere = $.inArray(parseInt(page, 10), view) != -1;
+
+            if (page > actualPage && !isHere)
+                right.push('<a href="#page/' + page + '">' + tabs[page] + "</a>");
+            else if (isHere) {
+                if (page % 2 === 0)
+                    left.push(
+                        '<a href="#page/' + page + '" class="on">' + tabs[page] + "</a>"
+                    );
+                else
+                    right.push(
+                        '<a href="#page/' + page + '" class="on">' + tabs[page] + "</a>"
+                    );
+            } else left.push('<a href="#page/' + page + '">' + tabs[page] + "</a>");
+        }
+
+        $(" #flipbook .tabs .left").html(left.join(""));
+        $(" #flipbook .tabs .right").html(right.join(""));
+    }
+
+    $("#flipbook").turn({
+        when:{
+            turning: function(e,page,view){ //ページがめくられ始めたとき
+                const book = $(this),
+                pages=book.turn("pages");
+                 if (page >= 2) $("#flipbook .p2").addClass("fixed");
+                else $("#flipbook .p2").removeClass("fixed");
+
+                if (page < book.turn("pages"))
+                    $("#flipbook .p5").addClass("fixed");
+                else $("#flipbook .p5").removeClass("fixed");
+
+            },
+            turned: function(e,page,view){ //ページがめくられ終わったとき
+                var book=$(this);
+                if(page!=1&& page!=book.turn("pages")) //１ページ目と最後のページの場合はタブを消す
+                $(" #flipbook .tabs").fadeIn(500);
+                else $("#flipbook .tabs").hide();
+                updateTabs(); //タブの更新を呼ぶ
+            }
+        }
+    });
+</script>
+</html>
